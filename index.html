@@ -1,14 +1,278 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=./3.%E4%BD%8F/legal_strategy_preview.html">
-  <title>八旬失智配偶法律防禦與權益最大化戰略報告書</title>
-  <script>
-    window.location.replace("./3.%E4%BD%8F/legal_strategy_preview.html");
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八旬失智配偶法律防禦與權益最大化戰略報告書</title>
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --text-main: #2D3748;
+    --title-orange: #DE5814;
+    --rust-red: #A83212;
+    --amber-gold: #D97706;
+    --citrus-orange: #EA580C;
+    --light-amber-bg: #FFFBEB;
+    --card-border: #FCD34D;
+    --font-rounded: 'PingFang TC', 'Microsoft JhengHei UI', 'Arial Rounded MT Bold', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: var(--font-rounded);
+    line-height: 1.65;
+    padding: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  
+  .egypt-header {
+    border: 2px solid var(--amber-gold);
+    border-radius: 16px;
+    padding: 32px 24px;
+    background: linear-gradient(135deg, #FFFDF7 0%, #FEF3C7 50%, #FFFDF7 100%);
+    text-align: center;
+    position: relative;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.08);
+  }
+  .egypt-header::before, .egypt-header::after {
+    content: "𓂀";
+    font-size: 28px;
+    color: var(--rust-red);
+    position: absolute;
+    top: 14px;
+  }
+  .egypt-header::before { left: 24px; }
+  .egypt-header::after { right: 24px; }
+  
+  h1.main-title {
+    color: var(--title-orange);
+    font-size: 25px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    color: var(--rust-red);
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .meta-tag {
+    display: inline-block;
+    background: var(--bg);
+    border: 1.5px solid var(--amber-gold);
+    color: var(--title-orange);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  
+  .section-card {
+    background: #FFFFFF;
+    border: 1.5px solid #FDE68A;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  h2.section-title {
+    color: var(--title-orange);
+    font-size: 18.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--amber-gold);
+    padding-bottom: 6px;
+  }
+  
+  .highlight {
+    color: var(--amber-gold);
+    font-weight: 700;
+  }
+  .badge-amber {
+    background-color: var(--light-amber-bg);
+    border-left: 4px solid var(--amber-gold);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  
+  table.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13.5px;
+  }
+  table.custom-table th {
+    background-color: #FEF3C7;
+    color: var(--rust-red);
+    font-weight: 700;
+    padding: 10px 12px;
+    border: 1px solid #FDE68A;
+    text-align: left;
+  }
+  table.custom-table td {
+    padding: 10px 12px;
+    border: 1px solid #FDE68A;
+    color: var(--text-main);
+  }
+  table.custom-table tr:nth-child(even) {
+    background-color: #FFFDF7;
+  }
+  
+  .strategy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .strat-box {
+    background: var(--light-amber-bg);
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .strat-box.strategy-a { border-color: var(--rust-red); }
+  .strat-box.strategy-b { border-color: var(--title-orange); }
+  .strat-box h4 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .strategy-a h4 { color: var(--rust-red); }
+  .strategy-b h4 { color: var(--title-orange); }
+  
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 8px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    border-bottom: 1px dashed #FDE68A;
+  }
+  .checklist li::before {
+    content: "✔";
+    color: var(--citrus-orange);
+    font-weight: bold;
+  }
+</style>
 </head>
 <body>
-  <p>正在載入互動式策略報告... 若未自動跳轉，請<a href="./3.%E4%BD%8F/legal_strategy_preview.html">點擊此處直接進入</a>。</p>
+
+  <!-- Header Banner -->
+  <div class="egypt-header">
+    <h1 class="main-title">八旬失智配偶法律防禦與權益最大化戰略報告書</h1>
+    <div class="subtitle">阻斷廖光輝惡意脫產 ‧ 向第三者湛明輝追討資產 ‧ 監護宣告 ‧ 夫妻剩餘財產清算全攻略</div>
+    <div class="meta-tag">報告人：Howard Liao Ph.D.(廖倫豪 博士) ｜ 當事人：民國38年次（金婚）</div>
+  </div>
+
+  <!-- 說明篇 -->
+  <div class="section-card">
+    <h2 class="section-title">⚖️ 壹、【說明篇】本案法律本質與核心戰略形勢分析</h2>
+    <p>兩造長輩同為<span class="highlight">民國三十八年次（現年約77歲）</span>，攜手走過近半世紀婚姻。母親陪同白手起家，晚年罹患腦神經退化重症（失智症），日常需專人全天候照顧；父親廖光輝身為有責配偶，竟在外與第三者湛明輝交往，並將房產與存款惡意移轉予湛明輝，企圖訴請逼離病妻。</p>
+    
+    <div class="strategy-grid">
+      <div class="strat-box strategy-a">
+        <h4>法官心證：絕對不准廖光輝逼離</h4>
+        <p>• <b>民法第1052條但書鐵壁</b>：破壞婚姻之過失方無權訴離。母親患病非過錯，法官極度排斥丟包病妻，判離機率趨近於零。</p>
+        <p>• <b>策略 A 堅決不離</b>：母親保有第一順位繼承權，廖光輝百年時先分剩餘財產一半再繼承遺產，<b style="color:var(--rust-red);">小三湛明輝一毛分不到！</b></p>
+      </div>
+      <div class="strat-box strategy-b">
+        <h4>財產黃金期：100% 均為婚後財產</h4>
+        <p>• <b>民法第1030條之1</b>：置產買房均在民國74年後，無婚前財產可扣除，母親穩拿差額 50%。</p>
+        <p>• <b>民法第1030條之3追討</b>：5年內送給湛明輝之房產存款全數追加計回，不足者<b style="color:var(--title-orange);">直接判命湛明輝代為吐出差額返還母親！</b></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 程序篇 -->
+  <div class="section-card">
+    <h2 class="section-title">🏛️ 貳、【程序篇】法院訴訟與財產保全三大法定程序</h2>
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th style="width: 25%;">程序項目</th>
+          <th style="width: 35%;">具體法律程序</th>
+          <th style="width: 40%;">訴訟保全效果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b style="color:var(--title-orange);">1. 監護宣告程序</b></td>
+          <td>民法第 14 條家事宣告程序</td>
+          <td>由子女出任法定監護人兼代理人，全面隔絕廖光輝誘簽協議，私簽文件自始無效。</td>
+        </tr>
+        <tr>
+          <td><b style="color:var(--title-orange);">2. 假扣押與暫時處分</b></td>
+          <td>家事事件法財產保全程序</td>
+          <td>查封廖光輝與湛明輝名下房產定存防止套現脫產；命令按月匯給外籍看護薪資。</td>
+        </tr>
+        <tr>
+          <td><b style="color:var(--title-orange);">3. 實體裁判程序</b></td>
+          <td>民法侵權與分產反訴</td>
+          <td>駁回男方無理訴離，發動剩餘財產清算、追討湛明輝資產並連帶求償百萬精神賠償。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 方法篇 -->
+  <div class="section-card">
+    <h2 class="section-title">💰 參、【方法篇】爭取權益與賠償金最大化四大實體方法</h2>
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>求償方法項目</th>
+          <th>民法條文</th>
+          <th>求償內涵與法理依據</th>
+          <th>預估效益</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b style="color:var(--title-orange);">一、夫妻剩餘財產分配</b></td>
+          <td>民法第 1030 條之 1</td>
+          <td>清查現存婚後財產扣除負債差額平分。長輩五十年累積之房地產與存款，母親依法分得差額的一半（50%）。</td>
+          <td><b style="color:var(--rust-red);">【金額最大宗・佔90%以上】</b>數百萬至數千萬元。</td>
+        </tr>
+        <tr>
+          <td><b style="color:var(--title-orange);">二、追討第三者條款</b></td>
+          <td>民法第 1030 條之 3<br>民法第 1020 條之 1</td>
+          <td>起訴前5年內贈與湛明輝之房產存款全數追加計回！不足清償者直接判命<b>湛明輝代為吐出差額</b>。一年內贈與聲請撤銷。</td>
+          <td><b style="color:var(--rust-red);">【破解脫產殺手鐧】</b>將洗給湛明輝之資產全額追回。</td>
+        </tr>
+        <tr>
+          <td><b style="color:var(--title-orange);">三、侵害配偶權賠償</b></td>
+          <td>民法第 184 條<br>民法第 195 條第 3 項</td>
+          <td>提告廖光輝與湛明輝為連帶被告，舉證兩人同居與親暱事證，審酌原配病中遭背叛痛苦，判令連帶賠償。</td>
+          <td><b>【直擊第三者責任】</b>實務判賠約 60萬 ～ 100萬元。</td>
+        </tr>
+        <tr>
+          <td><b style="color:var(--title-orange);">四、離婚賠償與贍養費</b></td>
+          <td>民法第 1056 條<br>民法第 1057 條</td>
+          <td>判決離婚非財產損害賠償；加計母親失智重症無自理能力，判命廖光輝按月全額給付外籍看護費與生活照護費。</td>
+          <td><b>【尊嚴照護全額埋單】</b>每月 4～6 萬由男方全額支付。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 步驟篇 -->
+  <div class="section-card">
+    <h2 class="section-title">📋 肆、【步驟篇】家屬即刻行動 6 大實施步驟（SOP）</h2>
+    <ul class="checklist">
+      <li><b>步驟 1（公所領表）</b>：先至戶籍地區公所領取身心障礙鑑定表（帶照片3張、母親身分證、印章、代辦人證件）。</li>
+      <li><b>步驟 2（榮總開立診斷書）</b>：請醫師開具載明「CDR失智量表、不能為意思表示、24小時專人看護」之專業診斷書，並現場完成身障鑑定遞件。</li>
+      <li><b>步驟 3（調證查底牌）</b>：地政事務所申請「異動索引」取得房產過戶給湛明輝鐵證；國稅局調取廖光輝財產總歸戶與近三年所得清單。</li>
+      <li><b>步驟 4（聲請監護宣告）</b>：檢附診斷書向家事法院聲請監護宣告，指定子女任法定代理人，依法全面掌控訴訟防線。</li>
+      <li><b>步驟 5（假扣押凍結資產）</b>：對廖光輝與湛明輝名下資產聲請假扣押查封，聲請暫時處分命廖光輝按月支付外籍看護薪資。</li>
+      <li><b>步驟 6（實體訴訟反擊）</b>：起訴兩人侵害配偶權；法庭運用民法1052但書拒絕無理逼離，或反訴1030-3追討湛明輝名下資產！</li>
+    </ul>
+  </div>
+
 </body>
 </html>
