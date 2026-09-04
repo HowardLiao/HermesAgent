@@ -23,7 +23,7 @@
     font-family: var(--font-rounded);
     line-height: 1.65;
     padding: 24px;
-    max-width: 960px;
+    max-width: 980px;
     margin: 0 auto;
   }
   
@@ -34,7 +34,7 @@
     background: linear-gradient(135deg, #FFFDF7 0%, #FEF3C7 50%, #FFFDF7 100%);
     text-align: center;
     position: relative;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     box-shadow: 0 4px 20px rgba(217, 119, 6, 0.08);
   }
   .egypt-header::before, .egypt-header::after {
@@ -49,16 +49,16 @@
   
   h1.main-title {
     color: var(--title-orange);
-    font-size: 25px;
+    font-size: 26px;
     font-weight: 800;
     margin-bottom: 8px;
     letter-spacing: 0.5px;
   }
   .subtitle {
     color: var(--rust-red);
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 700;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
   .meta-tag {
     display: inline-block;
@@ -70,7 +70,89 @@
     font-size: 13px;
     font-weight: 700;
   }
+
+  /* DOWNLOAD PANEL */
+  .download-panel {
+    background: linear-gradient(180deg, #FFFDF7 0%, #FFFBEB 100%);
+    border: 2px solid var(--amber-gold);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.06);
+  }
+  .download-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    border-bottom: 1.5px solid #FDE68A;
+    padding-bottom: 8px;
+  }
+  .download-title {
+    color: var(--rust-red);
+    font-size: 17px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .download-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .download-card {
+    background: #FFFFFF;
+    border: 1.5px solid #FCD34D;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .download-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(222, 88, 20, 0.12);
+    border-color: var(--title-orange);
+  }
+  .doc-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--title-orange);
+    margin-bottom: 4px;
+  }
+  .doc-desc {
+    font-size: 12.5px;
+    color: #64748B;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .btn-download-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--title-orange) 0%, var(--citrus-orange) 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-download-action:hover {
+    opacity: 0.9;
+  }
   
+  /* Section styling */
   .section-card {
     background: #FFFFFF;
     border: 1.5px solid #FDE68A;
@@ -81,7 +163,7 @@
   }
   h2.section-title {
     color: var(--title-orange);
-    font-size: 18.5px;
+    font-size: 19px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -168,6 +250,40 @@
     <h1 class="main-title">八旬失智配偶法律防禦與權益最大化戰略報告書</h1>
     <div class="subtitle">阻斷廖光輝惡意脫產 ‧ 向第三者湛明輝追討資產 ‧ 監護宣告 ‧ 夫妻剩餘財產清算全攻略</div>
     <div class="meta-tag">報告人：Howard Liao Ph.D.(廖倫豪 博士) ｜ 當事人：民國38年次（金婚）</div>
+  </div>
+
+  <!-- DOWNLOADS PANEL -->
+  <div class="download-panel">
+    <div class="download-header">
+      <div class="download-title">📥 專案正式文件下載專區 (Official Documents)</div>
+      <span style="font-size: 12px; color: var(--amber-gold); font-weight: bold;">點擊即可直接下載檔案</span>
+    </div>
+    <div class="download-grid">
+      <!-- Word -->
+      <a href="../downloads/legal_strategy_report.docx" download="legal_strategy_report.docx" class="download-card">
+        <div>
+          <div class="doc-type">📄 Word 策略報告書</div>
+          <div class="doc-desc">微軟 Word 格式 (.docx)，含完整條文、醫學用語對照表及訴訟四模組，可直接列印或匯入 Google Docs。</div>
+        </div>
+        <div class="btn-download-action">⬇️ 下載 Word 檔案 (.docx)</div>
+      </a>
+      <!-- PPTX -->
+      <a href="../downloads/legal_strategy_presentation.pptx" download="legal_strategy_presentation.pptx" class="download-card">
+        <div>
+          <div class="doc-type">📊 PowerPoint 簡報檔</div>
+          <div class="doc-desc">16:9 寬螢幕設計簡報 (.pptx)，內含法理矩陣、金錢試算、執行甘特圖及埃及法老美學設計。</div>
+        </div>
+        <div class="btn-download-action">⬇️ 下載 PPTX 簡報 (.pptx)</div>
+      </a>
+      <!-- Markdown -->
+      <a href="../downloads/legal_strategy_report.md" download="legal_strategy_report.md" class="download-card">
+        <div>
+          <div class="doc-type">📝 純文字 / Markdown 檔</div>
+          <div class="doc-desc">輕量純文字報告 (.md)，便於在 GitHub、VSCode、Obsidian 或任何文本編輯器中快速檢視與搜尋。</div>
+        </div>
+        <div class="btn-download-action">⬇️ 下載 Markdown 檔案 (.md)</div>
+      </a>
+    </div>
   </div>
 
   <!-- 說明篇 -->
