@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M9 娛樂城全系統逆向研究、架構解剖與我司戰略決策總綱 | Howard Liao Ph.D.</title>
+  <style>
+    :root {
+      --bg-primary: #020617;
+      --bg-card: #0f172a;
+      --bg-card-hover: #1e293b;
+      --bg-code: #090d16;
+      --border-color: #1e293b;
+      --border-highlight: rgba(56, 189, 248, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --cyan: #38bdf8;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --orange: #de5814;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --radius: 12px;
+      --font-stack: -apple-system, BlinkMacSystemFont, "PingFang TC", "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Navbar */
+    .top-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(2, 6, 23, 0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #020617;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nav-search {
+      position: relative;
+      width: 380px;
+    }
+
+    .nav-search input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 0.5rem 1rem 0.5rem 2.2rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-search input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .nav-search svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: var(--text-dim);
+    }
+
+    .nav-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+    }
+
+    .badge-cyan { background: rgba(56, 189, 248, 0.15); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-orange { background: rgba(222, 88, 20, 0.15); color: var(--orange); border: 1px solid rgba(222, 88, 20, 0.3); }
+    .badge-red { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      max-width: 1720px;
+      margin: 0 auto;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 65px;
+      height: calc(100vh - 65px);
+      overflow-y: auto;
+      border-right: 1px solid var(--border-color);
+      padding: 1.75rem 1.25rem;
+      background: #020617;
+    }
+
+    .sidebar-group { margin-bottom: 1.75rem; }
+
+    .sidebar-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      font-weight: 800;
+      margin-bottom: 0.6rem;
+      padding-left: 0.5rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.55rem 0.85rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-link:hover {
+      color: var(--text-main);
+      background: var(--bg-card);
+    }
+
+    .sidebar-link.active {
+      color: var(--cyan);
+      background: rgba(56, 189, 248, 0.12);
+      font-weight: 700;
+      border-left: 3px solid var(--cyan);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      padding: 2.5rem 4rem;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(2, 6, 23, 0.5) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 2.75rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 0.85rem;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 1000px;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Section Cards */
+    .section-block {
+      margin-bottom: 4rem;
+      scroll-margin-top: 85px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--cyan);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .section-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: border-color 0.2s;
+    }
+
+    .module-card:hover {
+      border-color: var(--border-highlight);
+    }
+
+    .module-card-title {
+      font-size: 1.25rem;
+      font-weight: 750;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Tables */
+    .data-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1.25rem 0;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background: #090d16;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.data-table td {
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      vertical-align: top;
+    }
+
+    table.data-table tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    table.data-table tbody tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    /* Callout */
+    .callout {
+      background: rgba(2, 6, 23, 0.7);
+      border-left: 4px solid var(--orange);
+      border-radius: 0 10px 10px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      font-size: 0.92rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .callout-title {
+      font-weight: 800;
+      color: var(--orange);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* Download Cards */
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .download-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .download-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-top: 1.25rem;
+      transition: opacity 0.2s;
+    }
+
+    .dl-btn:hover { opacity: 0.9; }
+
+    .code-pill {
+      font-family: var(--font-mono);
+      background: var(--bg-code);
+      color: var(--cyan);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    /* API Catalog Controls */
+    .api-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .api-filter-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .api-filter-btn.active, .api-filter-btn:hover {
+      background: var(--cyan);
+      color: #020617;
+      font-weight: 700;
+      border-color: var(--cyan);
+    }
+
+    .api-input-search {
+      flex: 1;
+      min-width: 250px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.45rem 0.85rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      background: #020617;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar { display: none; }
+      .main-content { padding: 1.5rem; }
+      .nav-search { width: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-navbar">
+    <a href="#" class="brand">
+      <div class="brand-logo">M9</div>
+      <div>
+        <div class="brand-title">M9 系統逆向研究與我司戰略決策總綱</div>
+        <div class="brand-subtitle">Howard Liao Ph.D. 專案全景發布平台</div>
+      </div>
+    </a>
+
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="globalSearch" placeholder="搜尋全景架構、SOP、報表、代理分潤、API...">
+    </div>
+
+    <div class="nav-badges">
+      <span class="badge badge-cyan">220+ APIs</span>
+      <span class="badge badge-green">L4 深度解剖</span>
+      <span class="badge badge-amber">盛欣網絡需求轉化</span>
+      <span class="badge badge-orange">戰略暫停決策函</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Sticky Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">專案導覽與總綱</div>
+        <a href="#overview" class="sidebar-link active">專案背景與負責人</a>
+        <a href="#downloads" class="sidebar-link">官方 Word 規格書下載</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">全景技術與商業拆解</div>
+        <a href="#module-m9-arch" class="sidebar-link">1. M9 端到端架構與 220+ API</a>
+        <a href="#module-pricing" class="sidebar-link">2. 商業定價與真實營運成本</a>
+        <a href="#module-reports" class="sidebar-link">3. 營運報表全景與 12 大缺漏</a>
+        <a href="#module-affiliate" class="sidebar-link">4. 代理分層矩陣與 5 大模式</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">盛欣網絡戰略落實</div>
+        <a href="#module-shenxin" class="sidebar-link">5. M9 優點 vs 我司需求轉化</a>
+        <a href="#module-pause" class="sidebar-link">6. 市場不樂觀與暫停決策函</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">技術資產檢索</div>
+        <a href="#api-catalog" class="sidebar-link">220+ 核心 API 快速檢索</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Hero Banner -->
+      <section id="overview" class="hero">
+        <div class="hero-title">M9 娛樂城全系統逆向研究、架構解剖與我司戰略決策總綱</div>
+        <div class="hero-subtitle">
+          本平台彙整了針對 M9 / KOOBET 包網系統之完整逆向工程、第四層（L4）業務與數據實體拆解、
+          20+ 現役報表與 12 大日週月缺漏決策模型、代理階梯分潤矩陣，以及盛欣網絡《鬥陣江湖》商業模式吸納規格與專案暫停決策函。
+        </div>
+        <div class="hero-meta">
+          <span class="badge badge-cyan">規劃負責人：Howard Liao Ph.D. (廖倫豪 博士)</span>
+          <span class="badge badge-blue">職務：盛欣網絡 副總經理 / 上市櫃集團 資訊長 (CIO/CISO/CDAIO)</span>
+          <span class="badge badge-green">適用平台：GitHub Pages 官方戰情站點</span>
+          <span class="badge badge-amber">對象：Leo、Ben</span>
+        </div>
+      </section>
+
+      <!-- DOWNLOADS SECTION -->
+      <section id="downloads" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">00</span>
+            <h2 class="section-title">官方 Word (.docx) 規格書與報告下載專區</h2>
+          </div>
+          <span class="badge badge-amber">Milan Warm Amber Style</span>
+        </div>
+
+        <div class="download-grid">
+          <div class="download-card">
+            <div>
+              <span class="badge badge-amber">我司戰略需求規格書</span>
+              <div style="font-size:1.15rem; font-weight:700; margin:0.5rem 0;">M9 優點剖析與我司《鬥陣江湖》需求規格書</div>
+              <p style="font-size:0.85rem; color:var(--text-muted);">
+                全面提煉 M9 六大核心技術優點，並精確對接盛欣網絡「純房卡/開桌服務費批銷、二元制衡」模式之六大急需架構。
+              </p>
+            </div>
+            <a href="downloads/M9_Advantage_and_Shenxin_Requirements_Spec.docx" class="dl-btn" download>
+              下載規格書 (.docx)
+            </a>
+          </div>
+
+          <div class="download-card">
+            <div>
+              <span class="badge badge-orange">高管決策信函</span>
+              <div style="font-size:1.15rem; font-weight:700; margin:0.5rem 0;">M9 專案市場不樂觀與暫停推進說明函</div>
+              <p style="font-size:0.85rem; color:var(--text-muted);">
+                致 Leo & Ben：先肯定卓越產品實力，再坦誠剖析海外宏觀逆風與我司上市櫃體制難點，溫暖而堅決地暫停專案推進。
+              </p>
+            </div>
+            <a href="downloads/M9_Project_Suspension_Notice_and_Rationale.docx" class="dl-btn" style="background: linear-gradient(135deg, var(--orange), var(--amber));" download>
+              下載決策函 (.docx)
+            </a>
+          </div>
+
+          <div class="download-card">
+            <div>
+              <span class="badge badge-cyan">數據與代理規格書</span>
+              <div style="font-size:1.15rem; font-weight:700; margin:0.5rem 0;">營運報表全景、日週月缺漏與代理分潤全書</div>
+              <p style="font-size:0.85rem; color:var(--text-muted);">
+                收錄現有 6 大領域報表、12 張日週月決策模型（平帳/漏斗/RTP偏差/瀑布），以及 5 大代理分潤設定方式。
+              </p>
+            </div>
+            <a href="downloads/M9_Operations_Reports_and_Affiliate_Architecture_Specification.docx" class="dl-btn" download>
+              下載報表規格書 (.docx)
+            </a>
+          </div>
+
+          <div class="download-card">
+            <div>
+              <span class="badge badge-green">深層效益評估</span>
+              <div style="font-size:1.15rem; font-weight:700; margin:0.5rem 0;">M9 系統深度架構剖析與長遠發展白皮書</div>
+              <p style="font-size:0.85rem; color:var(--text-muted);">
+                致兄弟的肺腑建言：解構真實營運成本漏斗，提出底層網關解耦、風控產品化、出海綠色休閒遊戲三大陽光轉型路徑。
+              </p>
+            </div>
+            <a href="downloads/M9_Impact_Analysis_Report_Milan.docx" class="dl-btn" style="background: linear-gradient(135deg, var(--green), var(--cyan));" download>
+              下載評估白皮書 (.docx)
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 1: M9 ARCHITECTURE -->
+      <section id="module-m9-arch" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">01</span>
+            <h2 class="section-title">M9 端到端技術架構與 220+ API 總體拓撲</h2>
+          </div>
+          <span class="badge badge-cyan">L4 深度逆向</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-title">1.1 雙軌端到端系統拓撲</div>
+          <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:1.25rem;">
+            M9 系統採用前後端完全分離之單一免轉錢包（Seamless Wallet API）架構：
+          </p>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+            <div style="background:rgba(2, 6, 23, 0.6); padding:1.25rem; border-radius:10px; border:1px solid var(--border-color);">
+              <div style="font-weight:800; color:var(--cyan); margin-bottom:0.5rem;">前端玩家大廳 (Template M21)</div>
+              <ul style="font-size:0.85rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.6;">
+                <li>Vue 3 SPA 響應式排版，深色電競風視覺。</li>
+                <li>無縫聚合 20+ 原廠場館（PG, EVO, JILI, SA, SBOBET 等）。</li>
+                <li>TCP/WebSocket 全雙工長連線（餘額推播、跑馬燈大獎、踢線廣播）。</li>
+                <li>在地化 PromptPay QR Code 掃碼存款與提款打碼量即時校驗。</li>
+                <li>斗雞專區直播模組動態開關（<code>Vuex: showDouji</code>）。</li>
+              </ul>
+            </div>
+
+            <div style="background:rgba(2, 6, 23, 0.6); padding:1.25rem; border-radius:10px; border:1px solid var(--border-color);">
+              <div style="font-weight:800; color:var(--blue); margin-bottom:0.5rem;">超級總控後台 (SuperAdmin)</div>
+              <ul style="font-size:0.85rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.6;">
+                <li>D2Admin + Vue + Element UI，370 個前端組件 Chunks。</li>
+                <li>基於 Casbin 的 RESTful API 細粒度權限控制（<code>p, sub, obj, act</code>）。</li>
+                <li>四維關聯反查圖譜（IP / APP 機碼 / 銀行卡 / 免洗信箱）。</li>
+                <li>Doudou 自動化清算機器人（簡訊/推播監聽與 Android 自動代付）。</li>
+                <li>多租戶多站點獨立網域、授信額度調撥與全量操作審計日誌。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 2: PRICING & OPEX -->
+      <section id="module-pricing" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">02</span>
+            <h2 class="section-title">商業定價與真實營運成本漏斗分析</h2>
+          </div>
+          <span class="badge badge-amber">商業精算</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-title">2.1 買斷源碼 vs SaaS 開線行情對比</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>商業模式</th>
+                  <th>建置與入門門檻</th>
+                  <th>每月固定支出</th>
+                  <th>抽成與營運特點</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>買斷全套源碼 (Self-Hosted)</strong></td>
+                  <td><strong>$35,000 ~ $60,000 USD</strong> (約 110萬 ~ 190萬 TWD) + 原廠押金 $20k~$50k</td>
+                  <td>技術維運團隊薪資約 <strong>40萬 ~ 65萬 TWD / 月</strong></td>
+                  <td>掌握底層代碼，自建 Doudou 機器人與金流網關，長期利潤率提升 12%~15%，但需承擔資安攻擊與運維風險。</td>
+                </tr>
+                <tr>
+                  <td><strong>SaaS 白標開線 (White-Label)</strong></td>
+                  <td><strong>$3,000 ~ $8,000 USD</strong> (約 10萬 ~ 25萬 TWD) 一次性開站費</td>
+                  <td>系統維護費 <strong>$1,500 ~ $3,000 USD / 月</strong></td>
+                  <td><strong>場館抽成 8% ~ 14% GGR</strong> (通常有每月保底消耗)，開站快 (3~5 天)，適合輕資產驗證渠道流量。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout">
+            <div class="callout-title">★ 真實利潤漏斗（毛利背後的剛性扣除項）：</div>
+            毛利 GGR － 原廠場館費 (8%~14%) － 在地代收代付通道成本 (2%~3.5%) － 高防 CDN/抗 DDoS 盾與防封域名池 (每月數千美元) － 網銀凍卡死帳壞帳準備 － 代理佣金與贈金補貼 ＝ <strong>真實沉澱淨利潤極為薄弱</strong>。
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 3: REPORTS -->
+      <section id="module-reports" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">03</span>
+            <h2 class="section-title">營運報表全景盤點與 12 大日週月缺漏模型</h2>
+          </div>
+          <span class="badge badge-cyan">BI & 決策精準度</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-title">3.1 企業級必備之 12 張關鍵缺漏報表</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>時效維度</th>
+                  <th>缺漏之關鍵報表名稱</th>
+                  <th>精算公式與管理目的</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="badge badge-amber">日報</span></td><td><strong>1. 每日未結算負債與準備金平帳表</strong></td><td>充足率 = (實體卡資產 + 三方餘額) / (玩家錢包總額 + 浮動未結算注單) × 100%。若 &lt; 100% 立即告警熔斷，防內鬼偷調帳或黑客雙花。</td></tr>
+                <tr><td><span class="badge badge-amber">日報</span></td><td><strong>2. 日金流漏斗與掉單損耗分析表</strong></td><td>監控：點擊充值 → 生成 QR → 實際轉帳 → 機器人自動上分。秒級定位泰國網銀維護或電信阻斷。</td></tr>
+                <tr><td><span class="badge badge-amber">日報</span></td><td><strong>3. 日對沖套利與異常打水巡檢表</strong></td><td>自動掃描百家樂同桌莊閒對沖 (佔比 &gt; 90%)、輪盤全包、Slot 幽靈積累。每日晨會產出 Top 50 處置清單。</td></tr>
+                <tr><td><span class="badge badge-amber">日報</span></td><td><strong>4. 高淨值大戶日流失與沉默預警表</strong></td><td>VIP 3+ 單日虧損 &gt; 10 萬 THB 且餘額歸零、或 48 小時未登入者，自動派工單發放救援彩金挽回大戶。</td></tr>
+                <tr><td><span class="badge badge-blue">週報</span></td><td><strong>5. 週遊戲實際 RTP 與數學偏差檢驗表</strong></td><td>滾動比對各老虎機「理論 RTP」與「實際 RTP = 派彩/投注」。若連續一週實際 RTP &gt; 108%，立即排查漏洞或下架。</td></tr>
+                <tr><td><span class="badge badge-blue">週報</span></td><td><strong>6. 週新客同梯次留存追蹤表</strong></td><td>追蹤首存 (FTD) 之 D1/D3/D7 留存率。若某代理名下 D3 留存為 0%，證實為羊毛假量，扣發佣金。</td></tr>
+                <tr><td><span class="badge badge-blue">週報</span></td><td><strong>7. 週 VIP 升降級動態矩陣表</strong></td><td>統計晉級、保級、降級人次與淨貢獻，評估金字塔結構是良性流動還是基底萎縮。</td></tr>
+                <tr><td><span class="badge badge-blue">週報</span></td><td><strong>8. 週客訴爭議與卡單熱點分析表</strong></td><td>分析充值未到帳、提款卡單、原廠斷線抱怨熱點，量化平均結案時長，作為與原廠談判扣款籌碼。</td></tr>
+                <tr><td><span class="badge badge-purple">月報</span></td><td><strong>9. 月度真實淨利潤瀑布表</strong></td><td>公式：GGR毛利 - 原廠場館費 - 金流費 - 活動贈金 - 防封剛性支出 - 凍卡死帳 - 代理佣金 = <strong>真實月度淨利潤</strong>。</td></tr>
+                <tr><td><span class="badge badge-purple">月報</span></td><td><strong>10. 月度 CAC vs LTV 回本模型</strong></td><td>計算各渠道獲客成本 (CAC) 與用戶 1~3 個月累計貢獻淨額 (LTV)，精確得出渠道回本天數。</td></tr>
+                <tr><td><span class="badge badge-purple">月報</span></td><td><strong>11. 月度場館效益與保底產出比</strong></td><td>統計各廠商「實際消耗抽成 / 最低保底費比率」，果斷終止連續三個月白繳空轉費用的冷門場館。</td></tr>
+                <tr><td><span class="badge badge-purple">月報</span></td><td><strong>12. 月度卡池健康與沉澱死帳審計表</strong></td><td>統計月度採購卡片數量、存活天數、泰國警方凍結死帳資金總額，精確提列「壞帳準備金」。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 4: AFFILIATE -->
+      <section id="module-affiliate" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">04</span>
+            <h2 class="section-title">代理分層分潤階梯矩陣與 5 大設定模式</h2>
+          </div>
+          <span class="badge badge-amber">分銷清算中台</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-title">4.1 傳統負盈利佔成 (RS) vs 前台全民三級裂變 (Referral)</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>代理等級</th>
+                  <th>當月有效活躍會員</th>
+                  <th>團隊當月淨虧損門檻 (THB)</th>
+                  <th>負盈利分紅比例 (RS %)</th>
+                  <th>洗碼抽成比率 (Turnover %)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Level 1 (青銅)</td><td>≥ 5 人</td><td>1 ~ 100,000</td><td style="color:var(--amber);font-weight:700;">30%</td><td>電子 1.0% / 真人 0.6% / 體育 0.4%</td></tr>
+                <tr><td>Level 2 (白銀)</td><td>≥ 15 人</td><td>100,001 ~ 300,000</td><td style="color:var(--amber);font-weight:700;">35%</td><td>電子 1.1% / 真人 0.7% / 體育 0.45%</td></tr>
+                <tr><td>Level 3 (黃金)</td><td>≥ 30 人</td><td>300,001 ~ 800,000</td><td style="color:var(--amber);font-weight:700;">40%</td><td>電子 1.2% / 真人 0.8% / 體育 0.5%</td></tr>
+                <tr><td>Level 4 (鑽石)</td><td>≥ 50 人</td><td>800,001 ~ 2,000,000</td><td style="color:var(--amber);font-weight:700;">45%</td><td>電子 1.3% / 真人 0.85% / 體育 0.55%</td></tr>
+                <tr><td>Level 5 (總代/股東)</td><td>≥ 100 人</td><td>2,000,001 以上</td><td style="color:var(--orange);font-weight:700;">50% ~ 55%</td><td>電子 1.5% / 真人 0.9% / 體育 0.6%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout">
+            <div class="callout-title">★ 前台全民三級裂變（M21 預設）：</div>
+            第一層直屬好友 <strong>0.40%</strong> ＋ 第二層間接好友 <strong>0.20%</strong> ＋ 第三層裂變 <strong>0.10%</strong> 有效流水返佣。每日凌晨 02:00 自動入錢包。
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 5: SHENXIN REQUIREMENTS -->
+      <section id="module-shenxin" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">05</span>
+            <h2 class="section-title">M9 核心優勢 vs 我司（盛欣網絡《鬥陣江湖》）架構需求轉化</h2>
+          </div>
+          <span class="badge badge-green">去博弈化・合規落地</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-title">5.1 嚴格合規底線與六大核心需求架構</div>
+          <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:1.25rem;">
+            盛欣網絡核心業務為<strong>俱樂部代理商房卡批銷模式（二元制衡）</strong>，產品嚴格僅有「房卡/開桌服務費」，
+            <strong>嚴禁任何虛寶、道具、藥水、時裝、轉蛋抽卡或賭資兌現</strong>。風格嚴格定位為「台味國風江湖武俠風」（客棧紅木桌、熊貓大俠潘達、暗棋麻將）。
+          </p>
+
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>M9 技術優勢</th>
+                  <th>我司（盛欣網絡）需求轉化與落實規範</th>
+                  <th>對接我司商業模式之實質效益</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>級差拆帳算法</strong></td>
+                  <td><strong>俱樂部房卡批銷階梯清算引擎</strong>：依公會會長進貨量自動結算批銷折扣與房卡消耗返點。</td>
+                  <td>徹底取代負盈利分成，形成合法的批發商折扣模型，激勵大會長建立合規推廣梯隊。</td>
+                </tr>
+                <tr>
+                  <td><strong>四維關聯圖譜</strong></td>
+                  <td><strong>公平競技防夥牌反作弊系統</strong>：強化「GPS 距離 (&lt;50m) + 同 WiFi IP + 同機碼」同桌排查。</td>
+                  <td>保障《鬥陣江湖》暗棋、麻將之絕對公平性，徹底杜絕熟人通牌作弊，守護綠色商譽。</td>
+                </tr>
+                <tr>
+                  <td><strong>單一免轉中台</strong></td>
+                  <td><strong>高併發房卡扣減與防雙花中台</strong>：落實「開桌預扣凍結、局畢實扣、流局秒級退還」機制。</td>
+                  <td>數萬包廂高峰同時開桌時，房卡扣減 100% 強一致性、零掉卡、零雙花。</td>
+                </tr>
+                <tr>
+                  <td><strong>Casbin RBAC 治理</strong></td>
+                  <td><strong>推廣與營運二元制衡內控系統</strong>：業務僅管推廣資質，營運專責額度派發，調帳雙人覆核。</td>
+                  <td>落實上市櫃內控標準，杜絕單一部門專權超發房卡，所有變更留存前後 JSON 審計。</td>
+                </tr>
+                <tr>
+                  <td><strong>多租戶動態模板</strong></td>
+                  <td><strong>國風江湖客棧微前端動態裝修</strong>：支援紅木茶桌、熊貓大俠潘達主題之 CDN 熱加載。</td>
+                  <td>節慶活動與公會客棧牌匾微前端熱抽換，主客戶端免重新發版。</td>
+                </tr>
+                <tr>
+                  <td><strong>數據對帳閉環</strong></td>
+                  <td><strong>房卡進銷存閉環與日平帳報表</strong>：檢驗「發行量 = 總控出庫 + 在庫 + 在手 + 開桌消耗」。</td>
+                  <td>每日自動跑平帳檢驗，一旦出現未授權房卡增量秒級告警熔斷，維護虛擬房卡嚴肅性。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 6: PAUSE DECISION -->
+      <section id="module-pause" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">06</span>
+            <h2 class="section-title">專案戰略決策：市場前景不樂觀與暫停推進說明函</h2>
+          </div>
+          <span class="badge badge-orange">高管決策信函</span>
+        </div>
+
+        <div class="module-card">
+          <div class="callout" style="border-left-color: var(--cyan);">
+            <div class="callout-title" style="color:var(--cyan);">致兄弟 Leo、Ben 的決策說明信函（全文收錄）：</div>
+            <p style="margin-bottom:0.75rem;"><strong>Leo、Ben：</strong></p>
+            <p style="margin-bottom:0.75rem;">
+              這幾天我和內部技術智囊，把你們這套 M9 系統從前端排版到後台 220 多支 API 與架構邏輯，非常扎實、深入地研究了一整遍。
+              首先我必須發自內心地向兩位兄弟豎起大拇指！這套系統做得<strong>太漂亮、太硬核了</strong>！從單一免轉錢包、Doudou 極速自動清算，到四維關聯防作弊圖譜，透著你們團隊極深的實戰底子與血汗心血，我和團隊都極為佩服！
+            </p>
+            <p style="margin-bottom:0.75rem;">
+              然而，回到商業經營的本質，除了產品本身夠不夠鋒利，身為掌舵者，更必須抬頭看戰場上的客觀氣候。我和內部經營層經過好幾輪非常嚴肅的推演與評估，<strong>必須誠懇且坦白地跟兩位說實話：我們對接下來整體海外市場的總體環境，考量是相當謹慎、甚至偏向不樂觀的。</strong>
+            </p>
+            <p style="margin-bottom:0.75rem;">
+              主要有三個不得不正視的客觀現實：<br>
+              1. <strong>海外宏觀監管與金流風暴加劇</strong>：東南亞政策收緊劇烈，防封域名封鎖成倍上升，網銀人頭卡排查上升至跨國執法維度，資金沉澱壞帳風險極大。<br>
+              2. <strong>流量紅利見頂，剛性成本高漲</strong>：買量成本攀升，高防 CDN、抗 D 盾、跳轉池與場館抽成層層扣減，真實淨利潤被壓縮得極為微薄。<br>
+              3. <strong>我司上市櫃體制下的防禦性戰略約束</strong>：身為上市櫃集團資訊長與盛欣副總，背負著嚴厲的反洗錢（AML）實質稽核。集團明令「防禦優先、固本培元、保守控管現金流」，全力聚焦於我們現有的《鬥陣江湖》綠色房卡棋牌生態。
+            </p>
+            <p style="margin-bottom:0.75rem;">
+              基於上述客觀難點，經過內部慎重討論，我們決定：<strong>在現階段暫停這個專案的合作推進。</strong><br>
+              我想跟兩位兄弟說的是：<strong>這個暫停，絕非你們的產品不好——相反地，你們的技術無可挑剔。這個決定，純粹是我們在面對大環境風暴時，不得不做出的戰略踩煞車。</strong>
+            </p>
+            <p style="margin-bottom:0.75rem;">
+              商業這條路很長，有時懂得留存實力是更成熟的智慧。生意有起伏，但兄弟的情分與我對你們才華的敬重永遠不變！未來如果海外氣候回暖，或是兩位考慮將高併發網關、圖風控引擎獨立出來做合規 B2B 科技服務，我 Howard 隨時在台北歡迎兩位！
+            </p>
+            <p style="text-align:right; margin-top:1rem; font-weight:700; color:var(--text-main);">
+              Howard Liao Ph.D. (廖倫豪 博士) 敬筆
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 7: API CATALOG -->
+      <section id="api-catalog" class="section-block">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-num">07</span>
+            <h2 class="section-title">220+ 核心 API 互動式清冊速查目錄</h2>
+          </div>
+          <span class="badge badge-cyan">RESTful 接口檢索</span>
+        </div>
+
+        <div class="module-card">
+          <div class="api-controls">
+            <input type="text" id="apiSearch" class="api-input-search" placeholder="依 API 路徑或功能過濾 (如 /vip, /order, /payConf)...">
+            <button class="api-filter-btn active" onclick="filterApiCategory('ALL', this)">全部 (220)</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('平台與多租戶', this)">平台租戶</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('會員與CRM', this)">會員CRM</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('財務與訂單', this)">財務訂單</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('支付通道配置', this)">金流通道</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('代理與分銷', this)">代理分銷</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('首頁與前台CMS', this)">前台CMS</button>
+            <button class="api-filter-btn" onclick="filterApiCategory('營銷促銷活動', this)">營銷活動</button>
+          </div>
+
+          <div class="data-table-wrap" style="max-height: 520px; overflow-y: auto;">
+            <table class="data-table" id="apiTable">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">方法</th>
+                  <th>API 路由路徑</th>
+                  <th>所屬業務模組</th>
+                  <th style="width: 100px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="apiTableBody">
+                <!-- Dynamically injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>M9 娛樂城全系統逆向研究、架構解剖與我司戰略決策總綱 &copy; 2026</p>
+    <p style="margin-top: 0.5rem; color: var(--text-dim);">
+      規劃負責人：<strong>Howard Liao Ph.D. (廖倫豪 博士)</strong> | 盛欣網絡 (Shenxin Network) & 上市櫃數位科技與娛樂集團
+    </p>
+  </footer>
+
+  <script>
+    const apiData = [{"path": "/MessageConf/createMessageTemplate", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/MessageConf/deleteMessageRecordList", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/MessageConf/deleteMessageTemplate", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/MessageConf/getMessageImRecordList", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "GET/POST"}, {"path": "/MessageConf/getMessageRecordList", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "GET/POST"}, {"path": "/MessageConf/getMessageSystemNoticeList", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "GET/POST"}, {"path": "/MessageConf/getMessageTemplateList", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "GET/POST"}, {"path": "/MessageConf/sendMessageImNotice", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/MessageConf/updateMessageSystemNotice", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/MessageConf/updateMessageTemplate", "prefix": "MessageConf", "category": "\u7ad9\u5167\u4fe1\u8207\u901a\u77e5\u6a21\u677f", "method": "POST"}, {"path": "/activityConf/createActivityConf", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "POST"}, {"path": "/activityConf/getActivityAllMemberRecord", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/getActivityAllMemberRecordDetail", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/getActivityConfList", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/getActivityLabels", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/getManualAwardRecord", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/getManualAwardRecordDetail", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/receiveManualAwardByOid", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "GET/POST"}, {"path": "/activityConf/sendManualAward", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "POST"}, {"path": "/activityConf/updateActivityConf", "prefix": "activityConf", "category": "\u71df\u92b7\u4fc3\u92b7\u6d3b\u52d5", "method": "POST"}, {"path": "/activityRecord/getActivityRecordList", "prefix": "activityRecord", "category": "\u6d3b\u52d5\u53c3\u8207\u8a18\u9304", "method": "GET/POST"}, {"path": "/activityRecord/getNewActList", "prefix": "activityRecord", "category": "\u6d3b\u52d5\u53c3\u8207\u8a18\u9304", "method": "GET/POST"}, {"path": "/activityVipNewConf/createActivityVipNewConf", "prefix": "activityVipNewConf", "category": "VIP\u968e\u68af\u6d3b\u52d5\u914d\u7f6e", "method": "POST"}, {"path": "/activityVipNewConf/getActivityVipNewConfList", "prefix": "activityVipNewConf", "category": "VIP\u968e\u68af\u6d3b\u52d5\u914d\u7f6e", "method": "GET/POST"}, {"path": "/activityVipNewConf/updateActivityVipNewConf", "prefix": "activityVipNewConf", "category": "VIP\u968e\u68af\u6d3b\u52d5\u914d\u7f6e", "method": "POST"}, {"path": "/agent/createAgent", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "POST"}, {"path": "/agent/createChannelForAgent", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "POST"}, {"path": "/agent/deleteChannelForAgent", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "POST"}, {"path": "/agent/getAgentChannelList", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "GET/POST"}, {"path": "/agent/getAgentList", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "GET/POST"}, {"path": "/agent/getAllAgent", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "GET/POST"}, {"path": "/agent/getNoUsedDomain", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "GET/POST"}, {"path": "/agent/updateAgent", "prefix": "agent", "category": "\u4ee3\u7406\u8207\u5206\u92b7", "method": "POST"}, {"path": "/agentMemberData/addSubPltBalance", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "POST"}, {"path": "/agentMemberData/getActivityReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getCashReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getFinanceReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getGameReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getMarketingReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getPlatCashRecord", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getPlatUserMonitor", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getSubPltBalanceDetail", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getSubPltChangeRecord", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getThirdPayReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/agentMemberData/getVipFinanceReport", "prefix": "agentMemberData", "category": "BI\u6578\u64da\u8207\u5831\u8868", "method": "GET/POST"}, {"path": "/api/createApi", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/api/deleteApi", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/api/getAllApis", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/api/getApiById", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/api/getApiList", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/api/updateApi", "prefix": "api", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/apiGameList/createApiGameList", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "POST"}, {"path": "/apiGameList/deleteApiGameList", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "POST"}, {"path": "/apiGameList/deleteApiGameListByIds", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "POST"}, {"path": "/apiGameList/getApiGameListList", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "GET/POST"}, {"path": "/apiGameList/updateApiGameList", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "POST"}, {"path": "/apiGameList/updateApiGameListOnline", "prefix": "apiGameList", "category": "\u904a\u6232API\u5217\u8868", "method": "POST"}, {"path": "/authority/copyAuthority", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "GET/POST"}, {"path": "/authority/createAuthority", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/authority/deleteAuthority", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/authority/getAuthorityList", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "GET/POST"}, {"path": "/authority/setDataAuthority", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/authority/updateAuthority", "prefix": "authority", "category": "\u5546\u6236\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/balance/create", "prefix": "balance", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/betRecord/getBetRecordList", "prefix": "betRecord", "category": "\u6ce8\u55ae\u8207\u6295\u6ce8\u8a18\u9304", "method": "GET/POST"}, {"path": "/betRecord/getBetStatistics", "prefix": "betRecord", "category": "\u6ce8\u55ae\u8207\u6295\u6ce8\u8a18\u9304", "method": "GET/POST"}, {"path": "/betRecord/getRecordUrl", "prefix": "betRecord", "category": "\u6ce8\u55ae\u8207\u6295\u6ce8\u8a18\u9304", "method": "GET/POST"}, {"path": "/bill/getBillList", "prefix": "bill", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/casbin/getPolicyPathByAuthorityId", "prefix": "casbin", "category": "\u5546\u6236Casbin\u898f\u5247", "method": "GET/POST"}, {"path": "/casbin/updateCasbin", "prefix": "casbin", "category": "\u5546\u6236Casbin\u898f\u5247", "method": "POST"}, {"path": "/cbFactoryConf/createCbFactoryConf", "prefix": "cbFactoryConf", "category": "\u904a\u6232\u5ee0\u5546\u914d\u7f6e", "method": "POST"}, {"path": "/cbFactoryConf/getCbFactoryConfList", "prefix": "cbFactoryConf", "category": "\u904a\u6232\u5ee0\u5546\u914d\u7f6e", "method": "GET/POST"}, {"path": "/cbFactoryConf/updateCbFactoryConf", "prefix": "cbFactoryConf", "category": "\u904a\u6232\u5ee0\u5546\u914d\u7f6e", "method": "POST"}, {"path": "/cbPictureConf/createCbPictureConf", "prefix": "cbPictureConf", "category": "\u5716\u7247\u7d20\u6750\u8207CDN", "method": "POST"}, {"path": "/cbPictureConf/deleteCbPictureConf", "prefix": "cbPictureConf", "category": "\u5716\u7247\u7d20\u6750\u8207CDN", "method": "POST"}, {"path": "/cbPictureConf/deleteCbPictureConfByIds", "prefix": "cbPictureConf", "category": "\u5716\u7247\u7d20\u6750\u8207CDN", "method": "POST"}, {"path": "/cbPictureConf/getCbPictureConfList", "prefix": "cbPictureConf", "category": "\u5716\u7247\u7d20\u6750\u8207CDN", "method": "GET/POST"}, {"path": "/cbPictureConf/updateCbPictureConf", "prefix": "cbPictureConf", "category": "\u5716\u7247\u7d20\u6750\u8207CDN", "method": "POST"}, {"path": "/channel/create", "prefix": "channel", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/channel/delete", "prefix": "channel", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/channel/getList", "prefix": "channel", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/channel/update", "prefix": "channel", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/charge-code/create", "prefix": "charge-code", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/charge-code/getList", "prefix": "charge-code", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/companyBank/createCompanyBank", "prefix": "companyBank", "category": "\u516c\u53f8\u5165\u6b3e\u5361\u6c60", "method": "POST"}, {"path": "/companyBank/deleteCompanyBank", "prefix": "companyBank", "category": "\u516c\u53f8\u5165\u6b3e\u5361\u6c60", "method": "POST"}, {"path": "/companyBank/getCompanyBankList", "prefix": "companyBank", "category": "\u516c\u53f8\u5165\u6b3e\u5361\u6c60", "method": "GET/POST"}, {"path": "/companyBank/updateCompanyBank", "prefix": "companyBank", "category": "\u516c\u53f8\u5165\u6b3e\u5361\u6c60", "method": "POST"}, {"path": "/conf/createConf", "prefix": "conf", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/conf/deleteConf", "prefix": "conf", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/conf/getConfList", "prefix": "conf", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/conf/updateConf", "prefix": "conf", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/conf/updateConfByKey", "prefix": "conf", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/dataRisk/createIpWhiteList", "prefix": "dataRisk", "category": "\u98a8\u63a7\u767d\u540d\u55ae\u8207\u6392\u67e5", "method": "POST"}, {"path": "/dataRisk/deleteIpWhiteList", "prefix": "dataRisk", "category": "\u98a8\u63a7\u767d\u540d\u55ae\u8207\u6392\u67e5", "method": "POST"}, {"path": "/dataRisk/getIpWhiteList", "prefix": "dataRisk", "category": "\u98a8\u63a7\u767d\u540d\u55ae\u8207\u6392\u67e5", "method": "GET/POST"}, {"path": "/dataRisk/getVipRankList", "prefix": "dataRisk", "category": "\u98a8\u63a7\u767d\u540d\u55ae\u8207\u6392\u67e5", "method": "GET/POST"}, {"path": "/dataRisk/updateIpWhiteList", "prefix": "dataRisk", "category": "\u98a8\u63a7\u767d\u540d\u55ae\u8207\u6392\u67e5", "method": "POST"}, {"path": "/douDouBt/createDouDouBt", "prefix": "douDouBt", "category": "Doudou\u81ea\u52d5\u51fa\u6b3e", "method": "POST"}, {"path": "/douDouBt/deleteDouDouBt", "prefix": "douDouBt", "category": "Doudou\u81ea\u52d5\u51fa\u6b3e", "method": "POST"}, {"path": "/douDouBt/deleteDouDouBtByIds", "prefix": "douDouBt", "category": "Doudou\u81ea\u52d5\u51fa\u6b3e", "method": "POST"}, {"path": "/douDouBt/getDouDouBtList", "prefix": "douDouBt", "category": "Doudou\u81ea\u52d5\u51fa\u6b3e", "method": "GET/POST"}, {"path": "/douDouBt/updateDouDouBt", "prefix": "douDouBt", "category": "Doudou\u81ea\u52d5\u51fa\u6b3e", "method": "POST"}, {"path": "/doudou/createDoudou", "prefix": "doudou", "category": "Doudou\u6e05\u7b97\u6a5f\u5668\u4eba", "method": "POST"}, {"path": "/doudou/getCurDoudouCheck", "prefix": "doudou", "category": "Doudou\u6e05\u7b97\u6a5f\u5668\u4eba", "method": "GET/POST"}, {"path": "/doudou/getDoudouList", "prefix": "doudou", "category": "Doudou\u6e05\u7b97\u6a5f\u5668\u4eba", "method": "GET/POST"}, {"path": "/doudou/getDoudouListLog", "prefix": "doudou", "category": "Doudou\u6e05\u7b97\u6a5f\u5668\u4eba", "method": "GET/POST"}, {"path": "/doudou/updateDoudou", "prefix": "doudou", "category": "Doudou\u6e05\u7b97\u6a5f\u5668\u4eba", "method": "POST"}, {"path": "/fileUploadAndDownload/getExportList", "prefix": "fileUploadAndDownload", "category": "\u5831\u8868\u5c0e\u51fa\u968a\u5217", "method": "GET/POST"}, {"path": "/fileUploadAndDownload/getFileList", "prefix": "fileUploadAndDownload", "category": "\u5831\u8868\u5c0e\u51fa\u968a\u5217", "method": "GET/POST"}, {"path": "/invalid-url", "prefix": "invalid-url", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/mail/createMail", "prefix": "mail", "category": "\u90f5\u4ef6\u7cfb\u7d71", "method": "POST"}, {"path": "/mail/getMailList", "prefix": "mail", "category": "\u90f5\u4ef6\u7cfb\u7d71", "method": "GET/POST"}, {"path": "/mainPageConf/createCustomContent", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/createCustomGameType", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/createGameLabel", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/createMainFactory", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/deleteCustomContent", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/deleteCustomGameType", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/deleteMainPageConf", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/getAllGameTypes", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getCustomContent", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getCustomGameType", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getGameLabelList", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getLinkGameInfo", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getMainFactory", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getMainPageConfList", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/getNavigateGameInfo", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/setLabelsForGame", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/sortSubGame", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "GET/POST"}, {"path": "/mainPageConf/updateCustomContent", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/updateCustomGameType", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/updateGameStatus", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/updateMainFactory", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/updateMainPageConf", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/mainPageConf/updateNavigateGame", "prefix": "mainPageConf", "category": "\u9996\u9801\u8207\u524d\u53f0CMS", "method": "POST"}, {"path": "/menu/addBaseMenu", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "POST"}, {"path": "/menu/addMenuAuthority", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "POST"}, {"path": "/menu/deleteBaseMenu", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "POST"}, {"path": "/menu/getBaseMenuById", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "GET/POST"}, {"path": "/menu/getBaseMenuTree", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "GET/POST"}, {"path": "/menu/getMenuAuthority", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "GET/POST"}, {"path": "/menu/getMenuList", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "GET/POST"}, {"path": "/menu/updateBaseMenu", "prefix": "menu", "category": "\u5546\u6236\u83dc\u55ae\u914d\u7f6e", "method": "POST"}, {"path": "/notice/createNotice", "prefix": "notice", "category": "\u524d\u53f0\u8dd1\u99ac\u71c8\u516c\u544a", "method": "POST"}, {"path": "/notice/deleteNotice", "prefix": "notice", "category": "\u524d\u53f0\u8dd1\u99ac\u71c8\u516c\u544a", "method": "POST"}, {"path": "/notice/getNoticeList", "prefix": "notice", "category": "\u524d\u53f0\u8dd1\u99ac\u71c8\u516c\u544a", "method": "GET/POST"}, {"path": "/notice/updateNotice", "prefix": "notice", "category": "\u524d\u53f0\u8dd1\u99ac\u71c8\u516c\u544a", "method": "POST"}, {"path": "/payConf/createPayConf", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/createPayConfBank", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/createPayConfThird", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/deletePayConf", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/getPayConfList", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/getPayConfListBank", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/getPayConfListDoudou", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/getPayConfListThird", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/getThirdBalance", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/testPayConfListThird", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "GET/POST"}, {"path": "/payConf/updatePayConf", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/updatePayConfBank", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/updatePayConfDoudou", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/payConf/updatePayConfThird", "prefix": "payConf", "category": "\u652f\u4ed8\u901a\u9053\u914d\u7f6e", "method": "POST"}, {"path": "/sessionBean/getSessionBeanList", "prefix": "sessionBean", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/superMessageConf/createMessageTemplate", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superMessageConf/deleteMessageRecordList", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superMessageConf/deleteMessageTemplate", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superMessageConf/getMessageImRecordList", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "GET/POST"}, {"path": "/superMessageConf/getMessageRecordList", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "GET/POST"}, {"path": "/superMessageConf/getMessageSystemNoticeList", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "GET/POST"}, {"path": "/superMessageConf/getMessageTemplateList", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "GET/POST"}, {"path": "/superMessageConf/sendMessageImNotice", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superMessageConf/updateMessageSystemNotice", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superMessageConf/updateMessageTemplate", "prefix": "superMessageConf", "category": "\u7e3d\u63a7\u6d88\u606f\u914d\u7f6e", "method": "POST"}, {"path": "/superapi/createApi", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/superapi/deleteApi", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/superapi/getAllApis", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/superapi/getApiById", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/superapi/getApiList", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/superapi/updateApi", "prefix": "superapi", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "POST"}, {"path": "/superauthority/createAuthority", "prefix": "superauthority", "category": "\u7e3d\u63a7\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/superauthority/deleteAuthority", "prefix": "superauthority", "category": "\u7e3d\u63a7\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/superauthority/getAuthorityList", "prefix": "superauthority", "category": "\u7e3d\u63a7\u89d2\u8272\u6b0a\u9650", "method": "GET/POST"}, {"path": "/superauthority/updateAuthority", "prefix": "superauthority", "category": "\u7e3d\u63a7\u89d2\u8272\u6b0a\u9650", "method": "POST"}, {"path": "/supercasbin/getPolicyPathByAuthorityId", "prefix": "supercasbin", "category": "\u7e3d\u63a7Casbin\u898f\u5247", "method": "GET/POST"}, {"path": "/supercasbin/updateCasbin", "prefix": "supercasbin", "category": "\u7e3d\u63a7Casbin\u898f\u5247", "method": "POST"}, {"path": "/supersysOperationRecord/getSysOperationRecordList", "prefix": "supersysOperationRecord", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/superuser/changePassword", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "GET/POST"}, {"path": "/superuser/deleteUser", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "POST"}, {"path": "/superuser/getUserList", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "GET/POST"}, {"path": "/superuser/register", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "GET/POST"}, {"path": "/superuser/resetBindCode", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "POST"}, {"path": "/superuser/setUserAuthority", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "POST"}, {"path": "/superuser/setUserInfo", "prefix": "superuser", "category": "\u7e3d\u63a7\u5e33\u865f\u7ba1\u7406", "method": "POST"}, {"path": "/sysOperationRecord/getSysOperationRecordList", "prefix": "sysOperationRecord", "category": "\u7cfb\u7d71\u64cd\u4f5c\u65e5\u8a8c", "method": "GET/POST"}, {"path": "/system/getServerInfo", "prefix": "system", "category": "\u5176\u4ed6\u5e95\u5c64\u63a5\u53e3", "method": "GET/POST"}, {"path": "/thirdPayConf/getThirdPayConfList", "prefix": "thirdPayConf", "category": "\u4e09\u65b9\u91d1\u6d41\u63a5\u53e3", "method": "GET/POST"}, {"path": "/thirdPayConf/updateThirdPayConf", "prefix": "thirdPayConf", "category": "\u4e09\u65b9\u91d1\u6d41\u63a5\u53e3", "method": "POST"}, {"path": "/userLoginLog/getUserLoginLogList", "prefix": "userLoginLog", "category": "\u767b\u5165\u8207\u5728\u7dda\u5be9\u8a08", "method": "GET/POST"}, {"path": "/userLoginLog/getUserOnlineCount", "prefix": "userLoginLog", "category": "\u767b\u5165\u8207\u5728\u7dda\u5be9\u8a08", "method": "GET/POST"}, {"path": "/version/createVersion", "prefix": "version", "category": "APP\u7248\u672c\u71b1\u66f4\u65b0", "method": "POST"}, {"path": "/version/deleteVersion", "prefix": "version", "category": "APP\u7248\u672c\u71b1\u66f4\u65b0", "method": "POST"}, {"path": "/version/getVersionList", "prefix": "version", "category": "APP\u7248\u672c\u71b1\u66f4\u65b0", "method": "GET/POST"}, {"path": "/version/updateVersion", "prefix": "version", "category": "APP\u7248\u672c\u71b1\u66f4\u65b0", "method": "POST"}, {"path": "/vip/bindActAndUser", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/blackVip", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/createVip", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/createVipLabel", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/createVipRemark", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/delteVipLabel", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/forceCancelAct", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/getDoudouLimitInfo", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/getVipLabelList", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/getVipLinkList", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/getVipList", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/getVipRemark", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/mockRegistVip", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "GET/POST"}, {"path": "/vip/resetFlowAndLimit", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/setLabelForUser", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/updateVip", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}, {"path": "/vip/updateVipLabel", "prefix": "vip", "category": "\u6703\u54e1\u8207CRM", "method": "POST"}];
+
+    function renderApiTable(list) {
+      const tbody = document.getElementById('apiTableBody');
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:2rem;">未找到匹配的 API 端點</td></tr>';
+        return;
+      }
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        const methodColor = item.method === 'POST' ? 'var(--blue)' : 'var(--green)';
+        tr.innerHTML = `
+          <td><span class="badge" style="background:rgba(255,255,255,0.05);color:${methodColor};border:1px solid ${methodColor}">${item.method}</span></td>
+          <td><code class="code-pill" style="cursor:pointer;" title="點擊複製" onclick="copyText('${item.path}')">${item.path}</code></td>
+          <td><span style="color:var(--text-muted);">${item.category}</span></td>
+          <td><button class="api-filter-btn" style="padding:2px 8px;font-size:0.75rem;" onclick="copyText('${item.path}')">複製</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    renderApiTable(apiData);
+
+    let currentCategory = 'ALL';
+    function filterApiCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.api-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyApiFilter();
+    }
+
+    document.getElementById('apiSearch').addEventListener('input', applyApiFilter);
+
+    function applyApiFilter() {
+      const q = document.getElementById('apiSearch').value.toLowerCase().trim();
+      const filtered = apiData.filter(item => {
+        const matchCat = (currentCategory === 'ALL' || item.category === currentCategory);
+        const matchQ = (item.path.toLowerCase().includes(q) || item.category.toLowerCase().includes(q));
+        return matchCat && matchQ;
+      });
+      renderApiTable(filtered);
+    }
+
+    function copyText(txt) {
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('已複製 API 路徑: ' + txt);
+      }).catch(() => {
+        prompt('請手動複製:', txt);
+      });
+    }
+
+    document.getElementById('globalSearch').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const q = this.value.trim().toLowerCase();
+        if (!q) return;
+        const targets = document.querySelectorAll('.module-card-title, .section-title, h2, td');
+        for (let el of targets) {
+          if (el.innerText.toLowerCase().includes(q)) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.style.outline = '2px solid var(--cyan)';
+            setTimeout(() => el.style.outline = '', 2000);
+            break;
+          }
+        }
+      }
+    });
+
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('.section-block, .hero');
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 120;
+        if (pageYOffset >= top) {
+          current = sec.getAttribute('id');
+        }
+      });
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
